@@ -10,14 +10,12 @@ import ddprofiler.sources.config.HiveSourceConfig;
 import ddprofiler.sources.config.PostgresSourceConfig;
 import ddprofiler.sources.config.SQLServerSourceConfig;
 import ddprofiler.sources.config.MongoDBSourceConfig;
-import ddprofiler.sources.config.ClickHouseSourceConfig;
 import ddprofiler.sources.config.SourceConfig;
 import ddprofiler.sources.implementations.CSVSource;
 import ddprofiler.sources.implementations.HiveSource;
 import ddprofiler.sources.implementations.PostgresSource;
 import ddprofiler.sources.implementations.SQLServerSource;
 import ddprofiler.sources.implementations.MongoDBSource;
-import ddprofiler.sources.implementations.ClickHouseSource;
 
 public enum SourceType {
     // CSV source
@@ -29,9 +27,7 @@ public enum SourceType {
     // Apache Hive data source
     hive(HiveSourceConfig.class),
     // MongoDB data source
-    mongodb(MongoDBSourceConfig.class),
-    // ClickHouse data source
-    clickhouse(ClickHouseSourceConfig.class);
+    mongodb(MongoDBSourceConfig.class);
 
     Class sc;
 
@@ -69,8 +65,6 @@ public enum SourceType {
                 return new HiveSource();
             case mongodb:
                 return new MongoDBSource();
-            case clickhouse:
-                return new ClickHouseSource();
             default:
                 return null;
         }
