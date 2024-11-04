@@ -13,6 +13,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import ddprofiler.sources.config.CSVSourceConfig;
 import ddprofiler.sources.config.GenericSource;
+import ddprofiler.sources.config.MongoDBSourceConfig;
 import ddprofiler.sources.config.PostgresSourceConfig;
 import ddprofiler.sources.config.SourceConfig;
 import ddprofiler.sources.config.Sources;
@@ -87,6 +88,19 @@ public class YAMLParser {
                 int db_server_port = postgresSource.getDb_server_port();
                 String db_username = postgresSource.getDb_username();
                 String db_password = postgresSource.getDb_password();
+                System.out.println(databaseName);
+                System.out.println(db_server_ip);
+                System.out.println(db_server_port);
+                System.out.println(db_username);
+                System.out.println(db_password);
+            }
+            if (type == SourceType.mongodb) {
+                MongoDBSourceConfig mongoSource = mapper.convertValue(props, MongoDBSourceConfig.class);
+                String databaseName = mongoSource.getDatabaseName();
+                String db_server_ip = mongoSource.getDbServerIp();
+                int db_server_port = mongoSource.getDbServerPort();
+                String db_username = mongoSource.getDbUsername();
+                String db_password = mongoSource.getDbPassword();
                 System.out.println(databaseName);
                 System.out.println(db_server_ip);
                 System.out.println(db_server_port);

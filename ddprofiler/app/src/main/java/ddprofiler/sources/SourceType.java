@@ -9,11 +9,13 @@ import ddprofiler.sources.config.CSVSourceConfig;
 import ddprofiler.sources.config.HiveSourceConfig;
 import ddprofiler.sources.config.PostgresSourceConfig;
 import ddprofiler.sources.config.SQLServerSourceConfig;
+import ddprofiler.sources.config.MongoDBSourceConfig;
 import ddprofiler.sources.config.SourceConfig;
 import ddprofiler.sources.implementations.CSVSource;
 import ddprofiler.sources.implementations.HiveSource;
 import ddprofiler.sources.implementations.PostgresSource;
 import ddprofiler.sources.implementations.SQLServerSource;
+import ddprofiler.sources.implementations.MongoDBSource;
 
 public enum SourceType {
     // CSV source
@@ -23,7 +25,9 @@ public enum SourceType {
     // Microsoft SQL Server database source
     sqlserver(SQLServerSourceConfig.class),
     // Apache Hive data source
-    hive(HiveSourceConfig.class);
+    hive(HiveSourceConfig.class),
+    // MongoDB data source
+    mongodb(MongoDBSourceConfig.class);
 
     Class sc;
 
@@ -59,6 +63,8 @@ public enum SourceType {
                 return new SQLServerSource();
             case hive:
                 return new HiveSource();
+            case mongodb:
+                return new MongoDBSource();
             default:
                 return null;
         }

@@ -42,14 +42,21 @@ sources:
   #     # separator used in the CSV files
   #     separator: ','
 
-  - name: "opendata"
-    # indicate the type of source, one of [csv, postgres, mysql, oracle10g, oracle11g]
-    type: csv
+  - name: "seismic_data_source"
+    type: mongodb
     config:
-      # path indicates where the CSV files live
-      path: "/home/cc/opendata_cleaned/"
-      # separator used in the CSV files
-      separator: ','
+      dbServerIp: "localhost"  # Replace with your MongoDB server IP
+      dbServerPort: 27017        # Default MongoDB port
+      databaseName: "seismic_data" # Name of the database to connect to
+      dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
+      dbPassword: "SpeakLouder"
+  # - name: "quickstart"
+  #   type: csv
+  #   config:
+  #     # path indicates where the CSV files live
+  #     path: "/Users/abbymarvel/Desktop/Thesis/CSL/ver/demo_dataset"
+  #     # separator used in the CSV files
+  #     separator: ','
 
 
 
