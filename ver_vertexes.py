@@ -25,10 +25,18 @@ qbe = QueryByExample(api)
 """
 Specify an example query
 """
+# example_columns = [
+#     ExampleColumn(attr='Timestamp', examples=["2024-01-01T06:30:00.002082", "2024-01-01T06:30:00.092082"]),
+#     ExampleColumn(attr='StationCode', examples=["CAMPI"]),
+#     ExampleColumn(attr='Temp', examples=[299.4]),
+#     ExampleColumn(attr='Humidity', examples=[87]),
+#     ExampleColumn(attr='Wind_speed', examples=[0.79])
+# ]
 example_columns = [
-    ExampleColumn(attr='Timestamp', examples=["2024-01-01T06:30:00.002082"]),
-    ExampleColumn(attr='StationCode', examples=["CAMPI"]),
-    ExampleColumn(attr='Elevation', examples=["306.838"])
+    ExampleColumn(attr='WeatherMain', examples=["Clouds", "Rain", "Clear"]),
+    ExampleColumn(attr='WeatherDescription', examples=["few clouds", "scattered clouds", "light rain"]),
+    ExampleColumn(attr='WeatherIcon', examples=["02n", "03n", "10n"]),
+    ExampleColumn(attr='Base', examples=["stations"])
 ]
 
 # correct join path is 9a5f-2r4p.csv join d7as-muwj.csv
@@ -37,17 +45,19 @@ example_columns = [
 Find candidate columns
 """
 start = time.time()
-candidate_list = qbe.find_candidate_columns(example_columns, cluster_prune=False)
+candidate_list = qbe.find_candidate_columns(
+    example_columns, cluster_prune=False)
 print("Time taken to find candidate columns: ", time.time() - start)
 
 """
 Display candidate columns (for debugging purpose)
 """
 for i, candidate in enumerate(candidate_list):
-    print('column {}: found {} candidate columns'.format(format(i), len(candidate)))
+    print('column {}: found {} candidate columns'.format(
+        format(i), len(candidate)))
     # for debugging purpose, print the candidate columns
-    # for col in candidate:
-    #     print(col.to_str(), col.examples_set)
+    for col in candidate:
+        print(col.to_str(), col.examples_set)
 
 cand_groups, tbl_cols = qbe.find_candidate_groups(candidate_list)
 
@@ -57,7 +67,8 @@ print("number of candidate groups: ", len(cand_groups))
 # Find join graphs
 # """
 number_of_cand_groups_to_search = 200
-join_graphs = qbe.find_join_graphs_for_cand_groups(cand_groups[0:number_of_cand_groups_to_search])
+join_graphs = qbe.find_join_graphs_for_cand_groups(
+    cand_groups[0:number_of_cand_groups_to_search])
 print(f"number of join graphs: {len(join_graphs)}")
 
 # """
@@ -81,7 +92,7 @@ if not os.path.exists(output_path):
     os.makedirs(output_path)
 
 mongo_uri = "mongodb://abby.marvel:SpeakLouder@localhost:27017"
-database_name = "seismic_data"
+database_name = "geospatial_data"
 materializer = MongoMaterializer(mongo_uri, database_name, tbl_cols, 200)
 
 result_dfs = []

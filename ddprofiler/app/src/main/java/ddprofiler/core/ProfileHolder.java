@@ -71,6 +71,7 @@ public class ProfileHolder {
                 avgValue = (numericalRange != null) ? numericalRange.getAvg() : 0;
                 median = (numericalRange != null) ? numericalRange.getMedian() : 0;
                 iqr = (numericalRange != null) ? numericalRange.getIQR() : 0;
+                minhash = (numericalAnalysis.getMH() != null) ? numericalAnalysis.getMH() : null;
             } else if (attributeType.equals(AttributeType.INT)) {
                 NumericalAnalysis numericalAnalysis = ((NumericalAnalysis) analysis);
                 Cardinality cardinality = numericalAnalysis.getCardinality();
@@ -85,6 +86,7 @@ public class ProfileHolder {
                 avgValue = (numericalRange != null) ? numericalRange.getAvg() : 0;
                 median = (numericalRange != null) ? numericalRange.getMedian() : 0;
                 iqr = (numericalRange != null) ? numericalRange.getIQR() : 0;
+                minhash = (numericalAnalysis.getMH() != null) ? numericalAnalysis.getMH() : null;
             } else if (attributeType.equals(AttributeType.STRING)) {
                 TextualAnalysis textualAnalysis = ((TextualAnalysis) analysis);
                 Cardinality cardinality = textualAnalysis.getCardinality();

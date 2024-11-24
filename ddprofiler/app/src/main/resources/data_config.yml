@@ -42,21 +42,36 @@ sources:
   #     # separator used in the CSV files
   #     separator: ','
 
-  - name: "seismic_data_source"
-    type: mongodb
-    config:
-      dbServerIp: "localhost"  # Replace with your MongoDB server IP
-      dbServerPort: 27017        # Default MongoDB port
-      databaseName: "seismic_data" # Name of the database to connect to
-      dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
-      dbPassword: "SpeakLouder"
+  # - name: "seismic_data_source"
+  #   type: mongodb
+  #   config:
+  #     dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
+  #     dbServerPort: 27017        # Default MongoDB port
+  #     databaseName: "geospatial_db" # Name of the database to connect to
+  #     dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
+  #     dbPassword: "SpeakLouder"
   # - name: "quickstart"
   #   type: csv
   #   config:
   #     # path indicates where the CSV files live
-  #     path: "/Users/abbymarvel/Desktop/Thesis/CSL/ver/demo_dataset"
+  #     path: "/Users/abbymarvel/Desktop/Thesis/CSL/ver/demo_dataset/"
   #     # separator used in the CSV files
   #     separator: ','
+  - name: "kampang"
+    type: csv
+    config:
+      # path indicates where the CSV files live
+      path: "/Users/abbymarvel/Desktop/Thesis/CSL/ver/dataset_kampang/"
+      # separator used in the CSV files
+      separator: ','
+  # - name: "seismic_data_source"
+  #   type: mongodb
+  #   config:
+  #     dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
+  #     dbServerPort: 27017        # Default MongoDB port
+  #     databaseName: "openweather_db" # Name of the database to connect to
+  #     dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
+  #     dbPassword: "SpeakLouder"
 
 
 

@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import ddprofiler.analysis.FloatDataConsumer;
+import ddprofiler.analysis.IntegerDataConsumer;
 import ddprofiler.analysis.TextualDataConsumer;
 
-public class KMinHash implements TextualDataConsumer {
+public class KMinHash implements TextualDataConsumer, IntegerDataConsumer, FloatDataConsumer {
 
     private int K = 512; // default
     final private long MERSENNE_PRIME = (1 << 61) - 1;
@@ -119,6 +121,44 @@ public class KMinHash implements TextualDataConsumer {
             System.out.println(minhash[i]);
         }
 
+    }
+
+    @Override
+    public boolean feedFloatData(List<Float> records) {
+        for (Float value : records) {
+            if (value == null) {
+                continue;
+            }
+            // Convert float to its raw int bits (hashable representation)
+            int rawBits = Float.floatToIntBits(value);
+            long rawHash = (long) rawBits; // Convert to long for consistency
+            for (int i = 0; i < K; i++) {
+                // h = (a * x) + b
+                long hash = (rndSeeds[i][0] * rawHash + rndSeeds[i][1]) % MERSENNE_PRIME;
+                if (hash < minhash[i]) {
+                    minhash[i] = hash;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean feedIntegerData(List<Long> records) {
+        for (Long value : records) {
+            if (value == null) {
+                continue;
+            }
+            long rawHash = value; // Use the integer value directly as the raw hash
+            for (int i = 0; i < K; i++) {
+                // h = (a * x) + b
+                long hash = (rndSeeds[i][0] * rawHash + rndSeeds[i][1]) % MERSENNE_PRIME;
+                if (hash < minhash[i]) {
+                    minhash[i] = hash;
+                }
+            }
+        }
+        return true;
     }
 
 }

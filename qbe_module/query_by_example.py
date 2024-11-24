@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from qbe_module.column_selection import ColumnSelection, Column
 from qbe_module.join_path_search import JoinPathSearch
 from qbe_module.join_graph_search import JoinGraphSearch, CandidateGroup
@@ -9,7 +9,7 @@ from copy import deepcopy
 from tqdm import tqdm
 
 class ExampleColumn:
-    def __init__(self, attr: str, examples: List[str]) -> None:
+    def __init__(self, attr: str, examples: List[Union[str, int, float]]) -> None:
         self.attr = attr
         self.examples = examples
 
@@ -24,7 +24,7 @@ class QueryByExample:
         self.columns = columns
         candidates_list = []
         for column in self.columns:
-            candidate_columns = self.column_selection.column_retreival(column.attr, column.examples)
+            candidate_columns = self.column_selection.column_retrieval(column.attr, column.examples)
             candidates_list.append(list(candidate_columns.values()))
         if cluster_prune:
             candidates_list = self.get_column_clusters(candidates_list, prune=True)

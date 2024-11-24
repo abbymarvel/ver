@@ -182,10 +182,10 @@ public class Worker implements Runnable {
             AttributeType at = a.getColumnType();
             Analysis analysis = null;
             if (at.equals(AttributeType.FLOAT)) {
-                analysis = AnalyzerFactory.makeNumericalAnalyzer();
+                analysis = AnalyzerFactory.makeNumericalAnalyzer(pseudoRandomSeed);
                 ((NumericalAnalysis) analysis).feedFloatData(entry.getValue().getFloats());
             } else if (at.equals(AttributeType.INT)) {
-                analysis = AnalyzerFactory.makeNumericalAnalyzer();
+                analysis = AnalyzerFactory.makeNumericalAnalyzer(pseudoRandomSeed);
                 ((NumericalAnalysis) analysis).feedIntegerData(entry.getValue().getIntegers());
             } else if (at.equals(AttributeType.STRING)) {
                 analysis = AnalyzerFactory.makeTextualAnalyzer(pc, pseudoRandomSeed);

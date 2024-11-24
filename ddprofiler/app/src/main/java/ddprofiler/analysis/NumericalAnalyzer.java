@@ -10,6 +10,7 @@ import java.util.List;
 import ddprofiler.analysis.config.AnalyzerConfig;
 import ddprofiler.analysis.modules.Cardinality;
 import ddprofiler.analysis.modules.CardinalityAnalyzer;
+import ddprofiler.analysis.modules.KMinHash;
 import ddprofiler.analysis.modules.Range;
 import ddprofiler.analysis.modules.RangeAnalyzer;
 import ddprofiler.sources.deprecated.Attribute.AttributeType;
@@ -17,10 +18,11 @@ import ddprofiler.sources.deprecated.Attribute.AttributeType;
 public class NumericalAnalyzer implements NumericalAnalysis {
 
     private List<DataConsumer> analyzers;
+    private KMinHash mh;
     private CardinalityAnalyzer ca;
     private RangeAnalyzer ra;
 
-    private NumericalAnalyzer() {
+    private NumericalAnalyzer(int pseudoRandomSeed) {
         analyzers = new ArrayList<>();
 
         if (AnalyzerConfig.getCardinality().getEnabled()) {
@@ -32,10 +34,15 @@ public class NumericalAnalyzer implements NumericalAnalysis {
             ra = new RangeAnalyzer();
             analyzers.add(ra);
         }
+
+        if (AnalyzerConfig.getKminhash().getEnabled()) {
+            mh = new KMinHash(pseudoRandomSeed);
+            analyzers.add(mh);
+        }
     }
 
-    public static NumericalAnalyzer makeAnalyzer() {
-        return new NumericalAnalyzer();
+    public static NumericalAnalyzer makeAnalyzer(int pseudoRandomSeed) {
+        return new NumericalAnalyzer(pseudoRandomSeed);
     }
 
     @Override
@@ -48,6 +55,11 @@ public class NumericalAnalyzer implements NumericalAnalysis {
         }
 
         return false;
+    }
+
+    @Override
+    public long[] getMH() {
+        return (mh != null) ? mh.getMH() : null;
     }
 
     @Override

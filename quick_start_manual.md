@@ -10,6 +10,7 @@ $ source venv/bin/activate
 (venv) $ pip install -r requirements_quick_start.txt
 # setup environment variables
 export PYTHONPATH="${PYTHONPATH}:{your_path}/ver/"
+export PYTHONPATH="/Users/abbymarvel/Desktop/Thesis/CSL/ver/"
 ```
 
 ## Build Data Profiles
@@ -42,4 +43,5 @@ python3 dindex_builder.py --profile_data_path ../ddprofiler/output_profiles_json
 ## Run Ver on the demo dataset
 ```bash
 python ver_quick_start.py
+python3 ver_quick_start.py
 ```

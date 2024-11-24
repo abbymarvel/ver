@@ -13,6 +13,8 @@ import ddprofiler.sources.deprecated.Attribute.AttributeType;
 public interface NumericalAnalysis
         extends Analysis, IntegerDataConsumer, FloatDataConsumer {
 
+    public long[] getMH();
+
     public Range getNumericalRange(AttributeType type);
 
     // add an interface to return the quantile

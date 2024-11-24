@@ -26,9 +26,9 @@ qbe = QueryByExample(api)
 Specify an example query
 """
 example_columns = [
-    ExampleColumn(attr='school_name', examples=["Ogden International High School", "University of Chicago Woodlawn"]),
-    ExampleColumn(attr='school type', examples=["Charter", "Neighborhood"]),
-    ExampleColumn(attr='level', examples=["Level 1", "Level 2"])
+    ExampleColumn(attr='Temp', examples=[302.6, 303.1, 299.97, 300.0, 301.5]),
+    ExampleColumn(attr='Dt', examples=[1731418124, 1731417625]),
+    ExampleColumn(attr='SysCountry', examples=["ID"])
 ]
 
 # correct join path is 9a5f-2r4p.csv join d7as-muwj.csv
@@ -46,8 +46,8 @@ Display candidate columns (for debugging purpose)
 for i, candidate in enumerate(candidate_list):
     print('column {}: found {} candidate columns'.format(format(i), len(candidate)))
     # for debugging purpose, print the candidate columns
-    # for col in candidate:
-    #     print(col.to_str(), col.examples_set)
+    for col in candidate:
+        print(col.to_str(), col.examples_set)
 
 cand_groups, tbl_cols = qbe.find_candidate_groups(candidate_list)
 
@@ -59,6 +59,7 @@ print("number of candidate groups: ", len(cand_groups))
 number_of_cand_groups_to_search = 200
 join_graphs = qbe.find_join_graphs_for_cand_groups(cand_groups[0:number_of_cand_groups_to_search])
 print(f"number of join graphs: {len(join_graphs)}")
+print(f"Join graphs: {(join_graphs)}")
 
 # """
 # Display join graphs (for debugging purpose)
@@ -73,7 +74,7 @@ for i, join_graph in enumerate(join_graphs):
 """
 Materialize join graphs
 """
-data_path = './demo_dataset/'  # path where the raw data is stored
+data_path = './dataset_kampang/'  # path where the raw data is stored
 output_path = './output/'  # path to store the output views
 max_num_views = 200  # how many views you want to materialize
 sep = ','  # csv separator

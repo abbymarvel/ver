@@ -5,8 +5,8 @@ import ddprofiler.core.config.ProfilerConfig;
 
 public class AnalyzerFactory {
 
-    public static NumericalAnalysis makeNumericalAnalyzer() {
-        NumericalAnalyzer na = NumericalAnalyzer.makeAnalyzer();
+    public static NumericalAnalysis makeNumericalAnalyzer(int pseudoRandomSeed) {
+        NumericalAnalyzer na = NumericalAnalyzer.makeAnalyzer(pseudoRandomSeed);
         return na;
     }
 

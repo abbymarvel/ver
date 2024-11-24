@@ -1,6 +1,7 @@
 from typing import List
 from pathlib import Path
 import os
+from enum import Enum
 
 import duckdb
 
@@ -15,6 +16,7 @@ class FTSIndexDuckDB(FullTextSearchIndex):
         db_path = Path(config['ver_base_path']) / Path(config['fts_duckdb_database_name'])
         self.conn = duckdb.connect(database=str(db_path))
 
+        self.profile = config["profile_table_name"]
         self.table_name = config["fts_data_table_name"]
         self.index_column = config["fts_index_column"]
 
@@ -67,22 +69,38 @@ class FTSIndexDuckDB(FullTextSearchIndex):
 
     # ----------------------------------------------------------------------
     # Query Methods
+    
+    def fts_query(self, keyword, search_domain, max_results, exact_search, threshold=None) -> List:
+        domain_mapping = {
+            'KWType.KW_CONTENT': 'data',
+            'KWType.KW_SCHEMA': 'columnname'
+        }
 
-    def fts_query(self, keyword, search_domain, max_results, exact_search) -> List:
-        # FIXME: translate search_domain into a field; here defaulting to data
-        search_domain = 'data'
+        search_domain_str = domain_mapping.get(str(search_domain))
 
-        query = f"""WITH scored_docs AS (
-                SELECT *, fts_main_{self.table_name}.match_bm25(data, '{keyword}', fields := '{search_domain}', conjunctive := {1 if exact_search else 0}) 
-                AS score FROM {self.table_name})
-            SELECT DISTINCT ON (profile_id) profile_id, dbname, path, sourcename, columnname, score
-            FROM scored_docs
-            WHERE score IS NOT NULL
-            ORDER BY score DESC
-            LIMIT {max_results};"""
+        if isinstance(keyword, (int, float)):
+            threshold = 1.5 * keyword
+            # Numerical similarity search
+            query = f"""
+                SELECT id, dbname, path, sourcename, columnname, ABS(median - {keyword}) AS score
+                FROM {self.profile}
+                WHERE median BETWEEN {keyword} - {threshold} AND {keyword} + {threshold}
+                ORDER BY score ASC
+                LIMIT {max_results};
+            """
+        else:
+            # Full-text search (original implementation)
+            query = f"""WITH scored_docs AS (
+                    SELECT *, fts_main_{self.table_name}.match_bm25(profile_id, '{keyword}', fields := '{search_domain_str}', conjunctive := {1 if exact_search else 0}) 
+                    AS score FROM {self.table_name})
+                SELECT DISTINCT ON (profile_id) profile_id, dbname, path, sourcename, columnname, score
+                FROM scored_docs
+                WHERE score IS NOT NULL
+                ORDER BY score DESC
+                LIMIT {max_results};"""
 
         res = self.conn.execute(query)
-        # for debug
-        # print(keyword)
-        # self.conn.sql(query).show() # note that show() will make res.fetchall() return zero rows
+        print("\n---fts index---\n")
+        print(f"fulltext_index_duckdb.py | TABLE: {self.table_name}, Keyword: {keyword}, Search Domain: {search_domain_str}, Exact Search: {exact_search}")
         return res.fetchall()
+

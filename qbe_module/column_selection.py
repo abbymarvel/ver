@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from aurum_api.apiutils import DRS, Operation, OP
 from qbe_module.column import Column
-from typing import List
+from typing import List, Union
 from aurum_api.apiutils import Relation
 from enum import Enum
  
@@ -16,9 +16,9 @@ class FilterType(Enum):
 class ColumnSelection:
     def __init__(self, aurum_api: AurumAPI):
         self.aurum_api = aurum_api
-        self.topk = 50 # limit the number of columns returned from keyword search
+        self.topk = 10 # limit the number of columns returned from keyword search
 
-    def column_retreival(self, attr: str, examples: List[str]):
+    def column_retrieval(self, attr: str, examples: List[Union[str, int, float]]):
         candidate_columns = {}
         # if attr is given
         if attr != "":

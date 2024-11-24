@@ -60,6 +60,7 @@ profile_index = "duckdb"
 content_index = "simpleminhash"
 fts_index = "duckdb"
 graph_index = "kuzu"
+vector_index = "duckdb"
 
 # Profile index config
 profile_table_name = "profiles"
@@ -67,7 +68,7 @@ profile_duckdb_database_name = "profiles"
 
 # FTS index configs
 fts_data_table_name = "fts_data"
-fts_index_column = "data"
+fts_index_column = "profile_id"
 fts_duckdb_database_name = "profiles"  # naming it the same as profile_duckdb_database_name places all in one instance
 
 # content index configs

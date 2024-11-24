@@ -1,6 +1,7 @@
 import itertools
 from enum import Enum
 import argparse
+from typing import Union
 
 from aurum_api.apiutils import compute_field_id as id_from
 from aurum_api.apiutils import Operation
@@ -31,7 +32,7 @@ class Algebra:
     Basic API
     """
 
-    def search(self, kw: str, kw_type=KWType.KW_CONTENT, max_results=10) -> DRS:
+    def search(self, kw: Union[str, int, float], kw_type=KWType.KW_CONTENT, max_results=10) -> DRS:
         """
         Performs a keyword search over the contents of the data.
         Scope specifies where elasticsearch should be looking for matches.
@@ -55,7 +56,7 @@ class Algebra:
         drs = DRS([x for x in hits], Operation(OP.KW_LOOKUP, params=[kw]))
         return drs
 
-    def exact_search(self, kw: str, kw_type: KWType, max_results=10):
+    def exact_search(self, kw: Union[str, int, float], kw_type: KWType, max_results=10):
         """
         See 'search'. This only returns exact matches.
         """
@@ -71,19 +72,19 @@ class Algebra:
         drs = DRS([x for x in hits], Operation(OP.KW_LOOKUP, params=[kw]))
         return drs
 
-    def search_content(self, kw: str, max_results=10) -> DRS:
+    def search_content(self, kw: Union[str, int, float], max_results=10) -> DRS:
         return self.search(kw, kw_type=KWType.KW_CONTENT, max_results=max_results)
 
-    def search_exact_content(self, kw: str, max_results=10) -> DRS:
+    def search_exact_content(self, kw: Union[str, int, float], max_results=10) -> DRS:
         return self.exact_search(kw, kw_type=KWType.KW_CONTENT, max_results=max_results)
 
-    def search_attribute(self, kw: str, max_results=10) -> DRS:
+    def search_attribute(self, kw: Union[str, int, float], max_results=10) -> DRS:
         return self.search(kw, kw_type=KWType.KW_SCHEMA, max_results=max_results)
 
     def search_exact_attribute(self, kw: str, max_results=10) -> DRS:
         return self.exact_search(kw, kw_type=KWType.KW_SCHEMA, max_results=max_results)
 
-    def search_table(self, kw: str, max_results=10) -> DRS:
+    def search_table(self, kw: Union[str, int, float], max_results=10) -> DRS:
         return self.search(kw, kw_type=KWType.KW_TABLE, max_results=max_results)
 
     def suggest_schema(self, kw: str, max_results=5):
