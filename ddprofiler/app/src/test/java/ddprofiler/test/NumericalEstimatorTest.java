@@ -14,6 +14,7 @@ import ddprofiler.utils.NumericalColumnGenerator.Distribution;
 
 public class NumericalEstimatorTest {
     public final int RANDOM_SEQ_LENGTH = 100000;
+    private final int pseudoRandomSeed = 1;
 
     public void loadInput(List<Float> randomList) {
         System.out.println("True 25 percentile: " +
@@ -23,7 +24,7 @@ public class NumericalEstimatorTest {
         System.out.println("True 75 percentile: " +
                 randomList.get(RANDOM_SEQ_LENGTH * 75 / 100));
 
-        NumericalAnalysis na = AnalyzerFactory.makeNumericalAnalyzer();
+        NumericalAnalysis na = AnalyzerFactory.makeNumericalAnalyzer(pseudoRandomSeed);
         na.feedFloatData(randomList);
         Cardinality c = na.getCardinality();
         Range r = na.getNumericalRange(AttributeType.FLOAT);

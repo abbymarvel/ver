@@ -57,13 +57,6 @@ sources:
   #     path: "/Users/abbymarvel/Desktop/Thesis/CSL/ver/demo_dataset/"
   #     # separator used in the CSV files
   #     separator: ','
-  - name: "kampang"
-    type: csv
-    config:
-      # path indicates where the CSV files live
-      path: "/Users/abbymarvel/Desktop/Thesis/CSL/ver/dataset_kampang/"
-      # separator used in the CSV files
-      separator: ','
   # - name: "seismic_data_source"
   #   type: mongodb
   #   config:
@@ -72,7 +65,14 @@ sources:
   #     databaseName: "openweather_db" # Name of the database to connect to
   #     dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
   #     dbPassword: "SpeakLouder"
-
+  - name: "seismic_data_source"
+    type: clickhouse
+    config:
+      dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
+      dbServerPort: 27017        # Default MongoDB port
+      databaseName: "default" # Name of the database to connect to
+      dbUsername: "abby"   # Optional: Username for MongoDB authentication
+      dbPassword: "Samsul1234"
 
 
 #- name: "data_in_postgres_db"

@@ -1,7 +1,5 @@
 from typing import List
 from pathlib import Path
-import os
-from enum import Enum
 
 import duckdb
 
@@ -100,7 +98,7 @@ class FTSIndexDuckDB(FullTextSearchIndex):
                 LIMIT {max_results};"""
 
         res = self.conn.execute(query)
-        print("\n---fts index---\n")
-        print(f"fulltext_index_duckdb.py | TABLE: {self.table_name}, Keyword: {keyword}, Search Domain: {search_domain_str}, Exact Search: {exact_search}")
+        # print("\n---fts index---\n")
+        # print(f"fulltext_index_duckdb.py | TABLE: {self.table_name}, Keyword: {keyword}, Search Domain: {search_domain_str}, Exact Search: {exact_search}")
         return res.fetchall()
 

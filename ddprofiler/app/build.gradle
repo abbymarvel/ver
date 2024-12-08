@@ -61,6 +61,7 @@ dependencies {
 
     implementation 'org.mongodb:mongodb-driver-sync:5.2.0'
     implementation 'com.opencsv:opencsv:5.7.1'
+    implementation 'com.clickhouse:client-v2:0.7.1'
 }
 
 application {

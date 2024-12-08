@@ -14,6 +14,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import ddprofiler.sources.config.CSVSourceConfig;
 import ddprofiler.sources.config.GenericSource;
 import ddprofiler.sources.config.MongoDBSourceConfig;
+import ddprofiler.sources.config.ClickHouseSourceConfig;
 import ddprofiler.sources.config.PostgresSourceConfig;
 import ddprofiler.sources.config.SourceConfig;
 import ddprofiler.sources.config.Sources;
@@ -107,7 +108,19 @@ public class YAMLParser {
                 System.out.println(db_username);
                 System.out.println(db_password);
             }
+            if (type == SourceType.clickhouse) {
+                ClickHouseSourceConfig clickHouseSource = mapper.convertValue(props, ClickHouseSourceConfig.class);
+                String databaseName = clickHouseSource.getDatabaseName();
+                String db_server_ip = clickHouseSource.getDbServerIp();
+                int db_server_port = clickHouseSource.getDbServerPort();
+                String db_username = clickHouseSource.getDbUsername();
+                String db_password = clickHouseSource.getDbPassword();
+                System.out.println(databaseName);
+                System.out.println(db_server_ip);
+                System.out.println(db_server_port);
+                System.out.println(db_username);
+                System.out.println(db_password);
+            }
         }
-
     }
 }
