@@ -45,10 +45,10 @@ sources:
   # - name: "seismic_data_source"
   #   type: mongodb
   #   config:
-  #     dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
-  #     dbServerPort: 27017        # Default MongoDB port
-  #     databaseName: "geospatial_db" # Name of the database to connect to
-  #     dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
+  #     dbServerIp: "85.209.163.202"
+  #     dbServerPort: 27017
+  #     databaseName: "geospatial_db"
+  #     dbUsername: "abby.marvel"
   #     dbPassword: "SpeakLouder"
   # - name: "quickstart"
   #   type: csv
@@ -60,18 +60,18 @@ sources:
   # - name: "seismic_data_source"
   #   type: mongodb
   #   config:
-  #     dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
-  #     dbServerPort: 27017        # Default MongoDB port
-  #     databaseName: "openweather_db" # Name of the database to connect to
-  #     dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
+  #     dbServerIp: "85.209.163.202"
+  #     dbServerPort: 27017
+  #     databaseName: "seismic_db"
+  #     dbUsername: "abby.marvel"
   #     dbPassword: "SpeakLouder"
   - name: "seismic_data_source"
     type: clickhouse
     config:
-      dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
-      dbServerPort: 27017        # Default MongoDB port
-      databaseName: "default" # Name of the database to connect to
-      dbUsername: "abby"   # Optional: Username for MongoDB authentication
+      dbServerIp: "85.209.163.202"
+      dbServerPort: 8123
+      databaseName: "seismic_db"
+      dbUsername: "abby"
       dbPassword: "Samsul1234"
 
 

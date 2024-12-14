@@ -129,7 +129,6 @@ public class MongoDBSource implements Source {
             connectToDatabase();
         }
 
-        MongoCollection<Document> collection = database.getCollection(this.relationName);
         Map<Attribute, List<String>> data = new LinkedHashMap<>();
         List<Attribute> attrs = getAttributes();
 

@@ -5,20 +5,26 @@ import static com.codahale.metrics.MetricRegistry.name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.clickhouse.client.api.Client;
-import com.clickhouse.client.api.data_formats.ClickHouseBinaryFormatReader;
-import com.clickhouse.client.api.query.QueryResponse;
+import com.clickhouse.client.ClickHouseClient;
+import com.clickhouse.client.ClickHouseCredentials;
+import com.clickhouse.client.ClickHouseException;
+import com.clickhouse.client.ClickHouseNode;
+import com.clickhouse.client.ClickHouseProtocol;
+import com.clickhouse.client.ClickHouseResponse;
+import com.clickhouse.data.ClickHouseColumn;
+import com.clickhouse.data.ClickHouseFormat;
+import com.clickhouse.data.ClickHouseRecord;
+import com.clickhouse.data.ClickHouseValue;
 import com.codahale.metrics.Counter;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import co.elastic.clients.elasticsearch.sql.QueryResponse;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import metrics.Metrics;
 import ddprofiler.sources.Source;
@@ -37,7 +43,7 @@ public class ClickHouseSource implements Source {
     private String databaseName;
     private String relationName;
     private ClickHouseSourceConfig config;
-    private Client client;
+    private ClickHouseNode server;
     private List<Attribute> attributes;
 
     private long lineCounter = 0;
@@ -79,22 +85,32 @@ public class ClickHouseSource implements Source {
         assert (config instanceof ClickHouseSourceConfig);
         this.config = (ClickHouseSourceConfig) config;
 
+        if (server == null) {
+            connectToDatabase();
+        }
+
         List<Source> tasks = new ArrayList<>();
         ClickHouseSourceConfig clickHouseConfig = (ClickHouseSourceConfig) config;
         String connectionString = clickHouseConfig.getPath();
+
         LOG.info("Connecting to ClickHouse at: {}", connectionString);
 
-        try (Client client = new Client.Builder().addEndpoint(connectionString)
-                .setUsername(clickHouseConfig.getDbUsername()).setPassword(clickHouseConfig.getDbPassword())
-                .setDefaultDatabase(clickHouseConfig.getDatabaseName()).build()) {
-            
-            // Read whole result set and process it record by record
-            client.queryAll("SHOW TABLES").forEach(row -> {
-                String tableName = row.getString(1);
-                ClickHouseSource task = new ClickHouseSource(clickHouseConfig.getDatabaseName(), tableName, config);
+        String query = String.format("SHOW TABLES");
+
+        try (ClickHouseClient client = ClickHouseClient.newInstance(server.getProtocol());
+                ClickHouseResponse response = client.read(server)
+                        .format(ClickHouseFormat.RowBinaryWithNamesAndTypes)
+                        .query(query).execute().get()) {
+
+            for (ClickHouseRecord record : response.records()) {
+                String tableName = record.getValue(0).asString();
+                System.out.println("Table name:" + tableName);
+
+                ClickHouseSource task = new ClickHouseSource(clickHouseConfig.getDatabaseName(),
+                        record.getValue(0).asString(),
+                        config);
                 tasks.add(task);
-            });
-            
+            }
             LOG.info("Total tables processed: {}", tasks.size());
         } catch (Exception e) {
             LOG.error("Error connecting to ClickHouse: ", e);
@@ -109,17 +125,25 @@ public class ClickHouseSource implements Source {
 
     @Override
     public List<Attribute> getAttributes() {
-        if (client == null) {
+        if (server == null) {
             connectToDatabase();
+        }
+
+        if (attributes == null) {
             attributes = new ArrayList<>();
-            String query = String.format("DESCRIBE TABLE %s", this.relationName);
-            try (QueryResponse response = client.query(query).get()) {
-                ClickHouseBinaryFormatReader reader = client.newBinaryFormatReader(response);
-                attributes.add(new Attribute(reader.getString(1)));
-                while (reader.hasNext()) {
-                    reader.next();
-                    attributes.add(new Attribute(reader.getString(1)));
+
+            String query = String.format("SELECT * FROM %s LIMIT 1;", this.relationName);
+
+            try (ClickHouseClient client = ClickHouseClient.newInstance(server.getProtocol());
+                    ClickHouseResponse response = client.read(server)
+                            .format(ClickHouseFormat.RowBinaryWithNamesAndTypes)
+                            .query(query).execute().get()) {
+                for (ClickHouseColumn column : response.getColumns()) {
+                    String columnName = column.getColumnName();
+                    attributes.add(new Attribute(columnName));
+                    LOG.debug("Attributes: " + columnName);
                 }
+
             } catch (Exception e) {
                 LOG.error("Error fetching attributes for table '{}': ", relationName, e);
             }
@@ -129,49 +153,77 @@ public class ClickHouseSource implements Source {
 
     @Override
     public Map<Attribute, List<String>> readRows(int num) {
-        connectToDatabase();
+        if (server == null) {
+            connectToDatabase();
+        }
 
         Map<Attribute, List<String>> data = new LinkedHashMap<>();
         List<Attribute> attrs = getAttributes();
+
+        // Initialize data structure to store rows
         attrs.forEach(a -> data.put(a, new ArrayList<>()));
 
-        String query = String.format("SELECT * FROM %s LIMIT %d OFFSET %d", this.relationName, num, lineCounter);
+        List<Record> recs = new ArrayList<>();
 
-        try (QueryResponse response = client.query(query).get()) {
-            ClickHouseBinaryFormatReader reader = client.newBinaryFormatReader(response);
-            while (reader.hasNext()) {
-                reader.next();
-                List<String> values = new ArrayList<>();
-                for (int i = 1; i <= attrs.size(); i++) {
-                    values.add(reader.getString(i));
-                }
-                Record rec = new Record();
-                rec.setTuples(values.toArray(new String[0]));
-                lineCounter++;
-                for (int i = 0; i < attrs.size(); i++) {
-                    data.get(attrs.get(i)).add(values.get(i));
-                }
-                successRecords.inc();
+        // Read rows from ClickHouse
+        boolean read_lines = this.read(num, recs);
+
+        // If no rows were read, return null
+        if (!read_lines) {
+            return null;
+        }
+
+        // Populate the data structure
+        for (Record record : recs) {
+            List<String> values = record.getTuples();
+            for (int i = 0; i < values.size(); i++) {
+                data.get(attrs.get(i)).add(values.get(i));
             }
-
-        } catch (Exception e) {
-            LOG.error("Error reading rows from table '{}': ", relationName, e);
         }
 
         return data;
     }
 
-    private void connectToDatabase() {
-        if (client == null) {
-            try {
-                Client.Builder clientBuilder = new Client.Builder()
-                .addEndpoint(this.config.getPath())
-                .setUsername(this.config.getDbUsername())
-                .setPassword(this.config.getDbPassword())
-                .compressServerResponse(true)
-                .setDefaultDatabase(this.config.getDatabaseName());
+    private boolean read(int numRecords, List<Record> rec_list) {
+        boolean read_lines = false;
 
-                client = clientBuilder.build();
+        try (ClickHouseClient client = ClickHouseClient.newInstance(server.getProtocol());
+                ClickHouseResponse response = client.read(server)
+                        .format(ClickHouseFormat.RowBinaryWithNamesAndTypes)
+                        .query(String.format("SELECT * FROM %s LIMIT %d OFFSET %d",
+                                this.relationName, numRecords, lineCounter)) // Use OFFSET to skip already-read rows
+                        .execute().get()) {
+
+            for (ClickHouseRecord record : response.records()) {
+                read_lines = true;
+                Record rec = new Record();
+
+                List<String> values = new ArrayList<>();
+                for (int i = 0; i < record.size(); i++) {
+                    values.add(record.getValue(i).asString());
+                }
+                rec.setTuples(values);
+                rec_list.add(rec);
+
+                lineCounter++; // Increment line counter to track the offset
+            }
+
+        } catch (Exception e) {
+            LOG.error("Error reading from ClickHouse: ", e);
+        }
+
+        return read_lines;
+    }
+
+    private void connectToDatabase() {
+        if (server == null) {
+            try {
+                server = ClickHouseNode.builder()
+                        .host(config.getDbServerIp())
+                        .port(ClickHouseProtocol.HTTP, config.getDbServerPort())
+                        .database(config.getDatabaseName()).credentials(ClickHouseCredentials.fromUserAndPassword(
+                                config.getDbUsername(), config.getDbPassword()))
+                        .build();
             } catch (Exception e) {
                 LOG.error("Error establishing connection to ClickHouse: ", e);
             }
@@ -180,9 +232,9 @@ public class ClickHouseSource implements Source {
 
     @Override
     public void close() {
-        if (client != null) {
+        if (server != null) {
             try {
-                client.close();;
+                server = null;
             } catch (Exception e) {
                 LOG.error("Error closing connection to ClickHouse: ", e);
             }

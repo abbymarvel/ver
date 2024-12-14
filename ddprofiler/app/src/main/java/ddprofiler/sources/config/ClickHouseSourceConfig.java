@@ -24,8 +24,6 @@ public class ClickHouseSourceConfig implements SourceConfig {
     @JsonProperty
     private String dbPassword;
 
-    @JsonProperty
-    private String protocol = "http"; // Default protocol
 
     public String getDatabaseName() {
         return databaseName;
@@ -67,14 +65,6 @@ public class ClickHouseSourceConfig implements SourceConfig {
         this.dbPassword = dbPassword;
     }
 
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
     @Override
     public SourceType getSourceType() {
         return SourceType.clickhouse;
@@ -101,7 +91,15 @@ public class ClickHouseSourceConfig implements SourceConfig {
 
     @Override
     public String getPath() {
-        StringBuilder connectionString = new StringBuilder(protocol + "://");
+        StringBuilder connectionString = new StringBuilder("clickhouse://");
+        if (dbUsername != null && !dbUsername.isEmpty()) {
+            connectionString.append(dbUsername);
+            if (dbPassword != null && !dbPassword.isEmpty()) {
+                connectionString.append(":").append(dbPassword);
+            }
+            connectionString.append("@");
+        }
+
         connectionString.append(dbServerIp).append(":").append(dbServerPort);
         
         return connectionString.toString();
@@ -117,7 +115,6 @@ public class ClickHouseSourceConfig implements SourceConfig {
         copy.dbServerPort = this.dbServerPort;
         copy.dbUsername = this.dbUsername;
         copy.dbPassword = this.dbPassword;
-        copy.protocol = this.protocol;
         return copy;
     }
 }
