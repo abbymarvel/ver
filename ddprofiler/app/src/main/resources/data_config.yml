@@ -45,9 +45,9 @@ sources:
   - name: "seismic_data_source"
     type: mongodb
     config:
-      dbServerIp: "localhost"  # Replace with your MongoDB server IP
+      dbServerIp: "85.209.163.202"  # Replace with your MongoDB server IP
       dbServerPort: 27017        # Default MongoDB port
-      databaseName: "seismic_data" # Name of the database to connect to
+      databaseName: "seismic_db" # Name of the database to connect to
       dbUsername: "abby.marvel"   # Optional: Username for MongoDB authentication
       dbPassword: "SpeakLouder"
   # - name: "quickstart"
